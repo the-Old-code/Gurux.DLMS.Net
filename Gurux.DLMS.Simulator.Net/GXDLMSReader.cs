@@ -1308,17 +1308,17 @@ namespace Gurux.DLMS.Reader
         /// <param name="line"></param>
         void WriteTrace(string line)
         {
-            if (_trace > TraceLevel.Info)
-            {
-                Console.WriteLine(line);
-            }
-            using (FileStream fs = File.Open("trace.txt", FileMode.Append))
-            {
-                using (TextWriter writer = new StreamWriter(fs))
-                {
-                    writer.WriteLine(line);
-                }
-            }
+            //if (_trace > TraceLevel.Info)
+            //{
+            //    Console.WriteLine(line);
+            //}
+            //using (FileStream fs = File.Open("trace.txt", FileMode.Append))
+            //{
+            //    using (TextWriter writer = new StreamWriter(fs))
+            //    {
+            //        writer.WriteLine(line);
+            //    }
+            //}
         }
     }
 }
