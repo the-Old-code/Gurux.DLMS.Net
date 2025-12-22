@@ -39,11 +39,12 @@ using Gurux.Net;
 using Gurux.Serial;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Reflection;
 using System.Text;
 
 namespace Gurux.DLMS.Simulator.Net
 {
-    class Settings
+    public class Settings
     {
         // Invocation counter (frame counter).
         public string invocationCounter = null;
@@ -452,6 +453,176 @@ namespace Gurux.DLMS.Simulator.Net
             Console.WriteLine("Example:");
             Console.WriteLine("Read DLMS device using TCP/IP connection.");
             Console.WriteLine("Gurux.Dlms.Simulator.Net -c 16 -s 1 -h [Meter IP Address] -p [Meter Port No] -o meter-template.xml");
+        }
+
+        public Settings Clone()
+        {
+            var copy = new Settings();
+
+            // 1) Простые поля.
+            copy.invocationCounter = invocationCounter;
+            copy.trace = trace;
+            copy.serverCount = serverCount;
+            copy.outputFile = outputFile;
+            copy.inputFile = inputFile;
+            copy.exclusive = exclusive;
+            copy.useSerialNumberAsMeterAddress = useSerialNumberAsMeterAddress;
+            copy.SharedObjects = SharedObjects;
+
+            // 2) Список — новый экземпляр.
+            copy.readObjects = readObjects != null
+                ? new List<KeyValuePair<string, int>>(readObjects)
+                : new List<KeyValuePair<string, int>>();
+
+            // 3) Gateway settings — если можно клонировать, клонируем.
+            copy.gatewaySettings = CloneIfPossible(gatewaySettings);
+
+            // 4) Media — создаём новый объект того же типа и копируем публичные свойства.
+            copy.media = CloneMedia(media);
+
+            // 5) Client — создаём новый и копируем ключевые параметры + ciphering.
+            if (client == null)
+            {
+                copy.client = null;
+            }
+            else
+            {
+                // copy.client уже создан конструктором/инициализатором поля,
+                // но на всякий случай гарантируем наличие.
+                copy.client ??= new GXDLMSSecureClient(true);
+                CopyClientConfiguration(client, copy.client);
+            }
+
+            return copy;
+        }
+
+        private static object CloneIfPossible(object value)
+        {
+            if (value == null) return null;
+
+            if (value is ICloneable c)
+            {
+                try { return c.Clone(); }
+                catch { /* если Clone() у объекта "кривой", падаем обратно на shallow */ }
+            }
+
+            // value types (enum/int/struct) тут и так безопасны (копируются по значению при присваивании),
+            // ссылочные типы — оставляем ссылку.
+            return value;
+        }
+
+        private static IGXMedia CloneMedia(IGXMedia src)
+        {
+            if (src == null) return null;
+
+            // Если вдруг Gurux media реализует ICloneable — используем.
+            if (src is ICloneable c)
+            {
+                try { return (IGXMedia)c.Clone(); }
+                catch { /* fallback ниже */ }
+            }
+
+            // Общий вариант: создаём новый объект того же типа и копируем публичные свойства.
+            var t = src.GetType();
+
+            // На случай если тип не имеет public parameterless ctor.
+            var dstObj = Activator.CreateInstance(t);
+            if (dstObj is not IGXMedia dst)
+            {
+                // Крайний случай: вернуть ту же ссылку (лучше, чем упасть).
+                return src;
+            }
+
+            CopyPublicWritableProperties(src, dst);
+
+            return dst;
+        }
+
+        private static void CopyClientConfiguration(GXDLMSSecureClient src, GXDLMSSecureClient dst)
+        {
+            // Важно: копируем именно "настройки", а не внутреннее состояние сессии.
+
+            dst.UseLogicalNameReferencing = src.UseLogicalNameReferencing;
+            dst.InterfaceType = src.InterfaceType;
+            dst.Authentication = src.Authentication;
+
+            dst.Password = CloneBytes(src.Password);
+
+            dst.ClientAddress = src.ClientAddress;
+            dst.ServerAddress = src.ServerAddress;
+
+            dst.Standard = src.Standard;
+            dst.UseUtc2NormalTime = src.UseUtc2NormalTime;
+            dst.AutoIncreaseInvokeID = src.AutoIncreaseInvokeID;
+
+            dst.GbtWindowSize = src.GbtWindowSize;
+            dst.ManufacturerId = src.ManufacturerId;
+
+            // HDLC настройки.
+            if (src.HdlcSettings != null && dst.HdlcSettings != null)
+            {
+                dst.HdlcSettings.WindowSizeRX = src.HdlcSettings.WindowSizeRX;
+                dst.HdlcSettings.WindowSizeTX = src.HdlcSettings.WindowSizeTX;
+                dst.HdlcSettings.MaxInfoRX = src.HdlcSettings.MaxInfoRX;
+                dst.HdlcSettings.MaxInfoTX = src.HdlcSettings.MaxInfoTX;
+            }
+
+            // Ciphering (ключи/системный title/счётчик).
+            if (src.Ciphering != null && dst.Ciphering != null)
+            {
+                dst.Ciphering.Security = src.Ciphering.Security;
+
+                dst.Ciphering.SystemTitle = CloneBytes(src.Ciphering.SystemTitle);
+                dst.Ciphering.AuthenticationKey = CloneBytes(src.Ciphering.AuthenticationKey);
+                dst.Ciphering.BlockCipherKey = CloneBytes(src.Ciphering.BlockCipherKey);
+                dst.Ciphering.BroadcastBlockCipherKey = CloneBytes(src.Ciphering.BroadcastBlockCipherKey);
+                dst.Ciphering.DedicatedKey = CloneBytes(src.Ciphering.DedicatedKey);
+
+                dst.Ciphering.InvocationCounter = src.Ciphering.InvocationCounter;
+            }
+
+            // Если у клиента есть ещё публичные "простые" параметры, которые ты хочешь копировать,
+            // добавь их сюда явно (так безопаснее, чем рефлексией тащить runtime-ссылки).
+        }
+
+        private static byte[] CloneBytes(byte[] src)
+        {
+            return src == null ? null : (byte[])src.Clone();
+        }
+
+        private static void CopyPublicWritableProperties(object src, object dst)
+        {
+            var t = src.GetType();
+            foreach (var p in t.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                if (!p.CanRead || !p.CanWrite) continue;
+                if (p.GetIndexParameters().Length != 0) continue;
+
+                object value;
+                try
+                {
+                    value = p.GetValue(src);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                // Чуть “углубляем”: byte[] копируем, остальное — как есть.
+                if (value is byte[] b)
+                {
+                    value = (byte[])b.Clone();
+                }
+
+                try
+                {
+                    p.SetValue(dst, value);
+                }
+                catch
+                {
+                    // некоторые свойства могут быть "только для чтения по факту" или требовать особый порядок
+                }
+            }
         }
     }
 }

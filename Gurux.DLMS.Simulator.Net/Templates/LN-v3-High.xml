@@ -1,55 +1,106 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Objects>
-    <GXDLMSData>
-        <LN>0.0.42.0.0.255</LN>
-        <Access>11</Access>
-        <Value Type="9">47 52 58 33</Value>
-    </GXDLMSData>
-    <GXDLMSAssociationLogicalName>
-        <LN>0.0.40.0.1.255</LN>
-        <Version>3</Version>
-        <Access3>80038003800380038003800380008003800380038003</Access3>
-        <MethodAccess3>800180018001800180018001</MethodAccess3>
-        <ObjectList>
-            <GXDLMSData>
-                <LN>0.0.42.0.0.255</LN>
-                <Access3>80018003</Access3>
-            </GXDLMSData>
-        </ObjectList>
-        <ClientSAP>18</ClientSAP>
-        <ServerSAP>1</ServerSAP>
-        <ApplicationContextName>
-            <JointIsoCtt>2</JointIsoCtt>
-            <Country>16</Country>
-            <CountryName>756</CountryName>
-            <IdentifiedOrganization>5</IdentifiedOrganization>
-            <DlmsUA>8</DlmsUA>
-            <ApplicationContext>1</ApplicationContext>
-            <ContextId>1</ContextId>
-        </ApplicationContextName>
-        <XDLMSContextInfo>
-            <Conformance>16252928</Conformance>
-            <MaxReceivePduSize>1024</MaxReceivePduSize>
-            <MaxSendPduSize>1024</MaxSendPduSize>
-            <DlmsVersionNumber>6</DlmsVersionNumber>
-        </XDLMSContextInfo>
-        <AuthenticationMechanismName>
-            <JointIsoCtt>2</JointIsoCtt>
-            <Country>16</Country>
-            <CountryName>756</CountryName>
-            <IdentifiedOrganization>5</IdentifiedOrganization>
-            <DlmsUA>8</DlmsUA>
-            <AuthenticationMechanismName>2</AuthenticationMechanismName>
-            <MechanismId>2</MechanismId>
-        </AuthenticationMechanismName>
-        <Secret>47 75 72 75 78</Secret>
-        <AssociationStatus>2</AssociationStatus>
-        <SecuritySetupReference>0.0.43.0.0.255</SecuritySetupReference>
-        <Users />
-    </GXDLMSAssociationLogicalName>
-    <GXDLMSData>
-        <LN>0.0.43.1.1.255</LN>
-        <Access3>80038003</Access3>
-        <Value Type="6">149</Value>
-    </GXDLMSData>
+
+	<GXDLMSData>
+		<LN>0.0.42.0.0.255</LN>
+		<Access3>80008000</Access3>
+		<Value Type="9">47 52 58 31 36 39 32 33</Value>
+	</GXDLMSData>
+
+	<GXDLMSData>
+		<LN>0.0.96.1.0.255</LN>
+		<Description>Ch. 0 Device ID 1, manufacturing number</Description>
+		<Access3>80008000</Access3>
+		<Value Type="9" UIType="10">230101140010522</Value>
+	</GXDLMSData>
+
+	<GXDLMSRegister>
+		<LN>1.0.1.8.0.255</LN>
+		<Description>Ch. 0 Sum Li Active power+ (QI+QIV) Time integral 1 Rate 0 (0 is total)</Description>
+		<Access3>800080008000</Access3>
+		<MethodAccess3>8000</MethodAccess3>
+		<Unit>30</Unit>
+		<Value Type="6">28994</Value>
+	</GXDLMSRegister>
+
+	<GXDLMSClock>
+		<LN>0.0.1.0.1.255</LN>
+		<Description>Ch. 0 Clock object #2</Description>
+
+		<!-- можете оставить те же права, что и у #1 -->
+		<Access>133133331</Access>
+		<MethodAccess>001001</MethodAccess>
+
+		<!-- лучше придерживаться формата как в шаблонах Gurux -->
+		<Time>12/17/2025 13:17:30</Time>
+		<TimeZone>-300</TimeZone>
+		<Status>0</Status>
+		<Begin>03/26/2000 03:00:00</Begin>
+		<End>10/29/2000 03:00:00</End>
+		<Deviation>60</Deviation>
+		<Enabled>0</Enabled>
+		<ClockBase>1</ClockBase>
+	</GXDLMSClock>
+
+	<GXDLMSAssociationLogicalName>
+		<LN>0.0.40.0.1.255</LN>
+		<Version>3</Version>
+		<Access3>80038003800380038003800380008003800380038003</Access3>
+		<MethodAccess3>800180018001800180018001</MethodAccess3>
+		<ObjectList>
+			<GXDLMSData>
+				<LN>0.0.42.0.0.255</LN>
+				<Access3>80018003</Access3>
+			</GXDLMSData>
+			<GXDLMSData>
+				<LN>0.0.96.1.0.255</LN>
+				<Access3>80018003</Access3>
+			</GXDLMSData>
+			<GXDLMSRegister>
+				<LN>1.0.1.8.0.255</LN>
+				<Access3>800180038001</Access3>
+				<MethodAccess3>8001</MethodAccess3>
+			</GXDLMSRegister>
+			<GXDLMSClock>
+				<LN>0.0.1.0.1.255</LN>
+				<Access3>8001800380038001800380038003800380038001</Access3>
+				<MethodAccess3>800080008001800080008001</MethodAccess3>
+			</GXDLMSClock>
+		</ObjectList>
+		<ClientSAP>48</ClientSAP>
+		<ServerSAP>1</ServerSAP>
+		<ApplicationContextName>
+			<JointIsoCtt>2</JointIsoCtt>
+			<Country>16</Country>
+			<CountryName>756</CountryName>
+			<IdentifiedOrganization>5</IdentifiedOrganization>
+			<DlmsUA>8</DlmsUA>
+			<ApplicationContext>1</ApplicationContext>
+			<ContextId>1</ContextId>
+		</ApplicationContextName>
+		<XDLMSContextInfo>
+			<Conformance>16252928</Conformance>
+			<MaxReceivePduSize>1024</MaxReceivePduSize>
+			<MaxSendPduSize>1024</MaxSendPduSize>
+			<DlmsVersionNumber>6</DlmsVersionNumber>
+		</XDLMSContextInfo>
+		<AuthenticationMechanismName>
+			<JointIsoCtt>2</JointIsoCtt>
+			<Country>16</Country>
+			<CountryName>756</CountryName>
+			<IdentifiedOrganization>5</IdentifiedOrganization>
+			<DlmsUA>8</DlmsUA>
+			<AuthenticationMechanismName>2</AuthenticationMechanismName>
+			<MechanismId>2</MechanismId>
+		</AuthenticationMechanismName>
+		<Secret>31 32 33 34 35 36 37 38 39 38 37 36 35 34 33 32</Secret>
+		<AssociationStatus>2</AssociationStatus>
+		<SecuritySetupReference>0.0.43.0.0.255</SecuritySetupReference>
+		<Users />
+	</GXDLMSAssociationLogicalName>
+	<GXDLMSData>
+		<LN>0.0.43.1.1.255</LN>
+		<Access3>80038003</Access3>
+		<Value Type="6">149</Value>
+	</GXDLMSData>
 </Objects>

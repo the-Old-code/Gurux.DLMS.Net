@@ -229,7 +229,7 @@ namespace Gurux.DLMS.Simulator.Net
         /// <summary>
         /// Start simulator.
         /// </summary>
-        static void StartSimulator(Settings settings)
+        static async System.Threading.Tasks.Task StartSimulator(Settings settings)
         {
             if (settings.media is GXSerial)
             {
@@ -279,7 +279,8 @@ namespace Gurux.DLMS.Simulator.Net
                     str += " Short Name ";
                 }
                 GXNet net = (GXNet)settings.media;
-                net.Server = true;
+                net.Server = false;
+                //net.Server = true;
                 if (settings.exclusive)
                 {
                     Console.WriteLine(str + "simulator start in port {0} implementing {1} meters.", net.Port, settings.serverCount);
@@ -303,7 +304,7 @@ namespace Gurux.DLMS.Simulator.Net
                 }
                 else
                 {
-                    Console.WriteLine(str + "simulator start in {0} ports {1}-{2}.", net.Protocol, net.Port, net.Port + settings.serverCount - 1);
+                    Console.WriteLine(str + "simulator start as {0} Client on {1}:{2}", net.Protocol, net.HostName, net.Port);
                 }
                 int index = 0;
                 if (settings.useSerialNumberAsMeterAddress)
@@ -334,7 +335,8 @@ namespace Gurux.DLMS.Simulator.Net
                     {
                         try
                         {
-                            server.Initialize(new GXNet(net.Protocol, net.Port + pos), settings.trace,
+                            await System.Threading.Tasks.Task.Delay(500);
+                            server.Initialize(new GXNet(net.Protocol, net.HostName, net.Port), settings.trace,
                                 settings.inputFile, (UInt32)index + 1,
                                 settings.exclusive, sharedObjects);
                         }
@@ -407,6 +409,17 @@ namespace Gurux.DLMS.Simulator.Net
                     }
 
                 }
+
+                TestClientsManager testClientsManager = new TestClientsManager();
+
+                var results = await testClientsManager.BeginTesting(settings);
+
+                Console.WriteLine("======================================================================");
+                foreach (var result in results) 
+                {
+                    Console.WriteLine(result);
+                }
+
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
                 {
@@ -426,7 +439,7 @@ namespace Gurux.DLMS.Simulator.Net
             }
         }
 
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             try
             {
@@ -444,7 +457,7 @@ namespace Gurux.DLMS.Simulator.Net
                 }
                 else if (!string.IsNullOrEmpty(settings.inputFile))
                 {
-                    StartSimulator(settings);
+                    await StartSimulator(settings);
                 }
                 else
                 {
