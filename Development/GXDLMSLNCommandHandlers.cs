@@ -49,13 +49,24 @@ namespace Gurux.DLMS
         public static void HandleGetRequest(GXDLMSSettings settings, GXDLMSServer server, GXByteBuffer data, GXByteBuffer replyData, GXDLMSTranslatorStructure xml, Command cipheredCommand)
         {
             //Return error if connection is not established.
-            if (xml == null && (settings.Connected & ConnectionState.Dlms) == 0 && cipheredCommand == Command.None)
-            {
-                replyData.Set(GXDLMSServer.GenerateConfirmedServiceError(ConfirmedServiceError.InitiateError,
-                              ServiceError.Service, (byte)Service.Unsupported));
-                return;
-            }
-            byte invokeID = 0;
+
+            //if (xml == null /*&& (settings.Connected & ConnectionState.Dlms) == 0*/ && cipheredCommand == Command.None)
+            //{
+            //    if (xml == null) Console.WriteLine("xml == null");
+            //    Console.WriteLine(settings.Connected);
+            //    Console.WriteLine(cipheredCommand);
+
+            //    replyData.Set(GXDLMSServer.GenerateConfirmedServiceError(ConfirmedServiceError.InitiateError,
+            //                  ServiceError.Service, (byte)Service.Unsupported));
+            //    return;
+            //}
+            //else 
+            //{
+            //    if (xml == null) Console.WriteLine("xml == null");
+            //    Console.WriteLine(settings.Connected);
+            //    Console.WriteLine(cipheredCommand);
+            //}
+                byte invokeID = 0;
             GetCommandType type = GetCommandType.Normal;
             try
             {
@@ -392,6 +403,7 @@ namespace Gurux.DLMS
                         GXCommon.GetData(settings, data, di);
                         xml.AppendEndTag(TranslatorTags.MethodInvocationParameters);
                     }
+                    //Console.WriteLine("return;");
                     return;
                 }
                 if (selection != 0)
@@ -409,7 +421,8 @@ namespace Gurux.DLMS
                 UInt32 blockNumber = data.GetUInt32();
                 if (xml == null && blockNumber != settings.BlockIndex)
                 {
-                    Debug.WriteLine("MethodRequest failed. Invalid block number. " + settings.BlockIndex + "/" + blockNumber);
+                    //Console.WriteLine("if (xml == null && blockNumber != settings.BlockIndex)");
+                    //Debug.WriteLine("MethodRequest failed. Invalid block number. " + settings.BlockIndex + "/" + blockNumber);
                     p.status = (byte)ErrorCode.DataBlockNumberInvalid;
                     return;
                 }
@@ -813,6 +826,7 @@ namespace Gurux.DLMS
             GXDLMSTranslatorStructure xml,
             Command cipheredCommand)
         {
+            Console.WriteLine("HandleMethodRequest");
             // Get type.
             byte invokeID;
             ActionRequestType type = (ActionRequestType)data.GetUInt8();
@@ -836,6 +850,7 @@ namespace Gurux.DLMS
             {
                 case ActionRequestType.Normal:
                 case ActionRequestType.WithFirstBlock:
+                    //Console.WriteLine("switch (type) WithFirstBlock");
                     MethodRequest(settings, type, invokeID, server, data, connectionInfo, replyData, xml, cipheredCommand);
                     break;
                 case ActionRequestType.NextBlock:
@@ -845,6 +860,7 @@ namespace Gurux.DLMS
                     MethodRequestNextBlock(settings, server, data, connectionInfo, replyData, xml, false, cipheredCommand);
                     break;
                 default:
+                    //Console.WriteLine("switch (type) default");
                     if (xml == null)
                     {
                         Debug.WriteLine("HandleMethodRequest failed. Invalid command type.");
@@ -928,6 +944,7 @@ namespace Gurux.DLMS
         /// <param name="data">Received data.</param>
         private static void GetRequestNormal(GXDLMSSettings settings, byte invokeID, GXDLMSServer server, GXByteBuffer data, GXByteBuffer replyData, GXDLMSTranslatorStructure xml, Command cipheredCommand)
         {
+            //Console.WriteLine("GetRequestNormal");
             ValueEventArgs e = null;
             GXByteBuffer bb = new GXByteBuffer();
             // Get type.
@@ -990,9 +1007,12 @@ namespace Gurux.DLMS
             if (obj == null)
             {
                 obj = settings.Objects.FindByLN(ci, GXCommon.ToLogicalName(ln));
+                //if (obj == null) Console.WriteLine("obj == null");
+                //else Console.WriteLine(obj.ToString());
             }
             if (obj == null)
             {
+                //Console.WriteLine("bj = server.NotifyFindObject(ci, 0, GXCommon.ToLogicalName(ln));");
                 obj = server.NotifyFindObject(ci, 0, GXCommon.ToLogicalName(ln));
             }
             e = new ValueEventArgs(server, obj, attributeIndex, selector, parameters);

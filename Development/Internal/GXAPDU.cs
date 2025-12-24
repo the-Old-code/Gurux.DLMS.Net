@@ -1821,6 +1821,7 @@ namespace Gurux.DLMS.Internal
                 data.SetUInt8((byte)settings.StoCChallenge.Length);
                 data.Set(settings.StoCChallenge);
             }
+
             if (result == AssociationResult.Accepted || cipher == null || cipher.Security == Security.None)
             {
                 byte[] tmp;
@@ -1843,6 +1844,8 @@ namespace Gurux.DLMS.Internal
                     }
                     else
                     {
+                        settings.ServerAddress = 32767;
+                        settings.ClientAddress = 48;
                         tmp = GetUserInformation(settings, cipher);
                     }
                 }

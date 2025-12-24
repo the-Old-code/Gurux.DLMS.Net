@@ -409,7 +409,7 @@ namespace Gurux.DLMS.Simulator.Net
                     }
 
                 }
-
+                await System.Threading.Tasks.Task.Delay(10000);
                 TestClientsManager testClientsManager = new TestClientsManager();
 
                 var results = await testClientsManager.BeginTesting(settings);

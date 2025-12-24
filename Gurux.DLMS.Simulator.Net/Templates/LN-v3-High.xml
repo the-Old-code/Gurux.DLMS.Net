@@ -90,10 +90,9 @@
 			<CountryName>756</CountryName>
 			<IdentifiedOrganization>5</IdentifiedOrganization>
 			<DlmsUA>8</DlmsUA>
-			<AuthenticationMechanismName>2</AuthenticationMechanismName>
-			<MechanismId>2</MechanismId>
+			<AuthenticationMechanismName>0</AuthenticationMechanismName>
+			<MechanismId>0</MechanismId>
 		</AuthenticationMechanismName>
-		<Secret>31 32 33 34 35 36 37 38 39 38 37 36 35 34 33 32</Secret>
 		<AssociationStatus>2</AssociationStatus>
 		<SecuritySetupReference>0.0.43.0.0.255</SecuritySetupReference>
 		<Users />

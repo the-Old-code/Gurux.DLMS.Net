@@ -11,7 +11,7 @@ namespace Gurux.DLMS.Simulator.Net
     public sealed class DlmsClient : IDisposable
     {
         private readonly IGXMedia _media;
-        private readonly GXDLMSSecureClient _client;
+        private readonly GXDLMSClient _client;
         private readonly GXDLMSReader _reader;
 
         public DlmsClient(Settings cfg)
@@ -20,7 +20,7 @@ namespace Gurux.DLMS.Simulator.Net
             _media = CreateMedia(cfg);
 
             // 2) DLMS client
-            _client = new GXDLMSSecureClient
+            _client = new GXDLMSClient
             {
                 UseLogicalNameReferencing = cfg.client.UseLogicalNameReferencing,
                 InterfaceType = cfg.client.InterfaceType,
@@ -28,8 +28,10 @@ namespace Gurux.DLMS.Simulator.Net
                 ServerAddress = cfg.client.ServerAddress,
                 Authentication = cfg.client.Authentication,
                 Password = cfg.client.Password,
+                ServiceClass = cfg.client.ServiceClass
+                
             };
-
+            _client.Settings.Broacast = true;
             // 3) Reader берёт на себя: SNRM/UA, AARQ/AARE, HLS, блоки, RR, disconnect.
             //    4-й параметр обычно путь к trace/log файлу (можно пустую строку).
             _reader = new GXDLMSReader(_client, _media, TraceLevel.Off, "");

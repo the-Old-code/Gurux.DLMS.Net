@@ -16,7 +16,7 @@ namespace Gurux.DLMS.Simulator.Net
             var testResult = new ConcurrentBag<string>();
 
             int startPort = 55555;
-
+            Console.WriteLine("==========================BEGIN TESTING========================");
             for (int i = 0; i < settings.serverCount; i++)
             {
                 int idx = i;                    
@@ -36,23 +36,24 @@ namespace Gurux.DLMS.Simulator.Net
                         client.Open();
                         client.InitializeConnection();
 
-                        Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} первичная инициализация пройдена");
+                        //Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} первичная инициализация пройдена");
 
                         var reg = new Gurux.DLMS.Objects.GXDLMSRegister("1.0.1.8.0.255");
                         var scalerUnit = client.Read(reg, 3);
 
-                        Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} Чтение текущей энергии пройдено");
+                        //Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} Чтение мастштаба текущей энергии пройдено");
 
                         object rawValue = client.Read(reg, 2);
-                        
+                        //Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} Чтение текущей энергии пройдено");
+
                         var clock = new Gurux.DLMS.Objects.GXDLMSClock("0.0.1.0.1.255");
                         var time = client.Read(clock, 2);
 
-                        Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} Чтение часов пройдено");
+                        //Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} Чтение часов пройдено");
 
                         var ok = $"[{idx:000}] {media.HostName}:{media.Port} OK";
 
-                        Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} чтение обисов пройдено");
+                        //Console.WriteLine($"{((GXNet)settings.media).HostName}:{port} чтение обисов пройдено");
 
                         testResult.Add(ok);
 
@@ -60,7 +61,7 @@ namespace Gurux.DLMS.Simulator.Net
                     }
                     catch (Exception ex)
                     {
-                        var err = $"[{idx:000}] {((GXNet)settings.media).HostName}:{port} ERROR: {ex.Message}";
+                        var err = $"[{idx:000}] {((GXNet)settings.media).HostName}:{port} {((GXNet)settings.media).Protocol} ERROR: {ex.Message}";
                         
                         testResult.Add(err);
                     }

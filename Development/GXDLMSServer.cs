@@ -1528,12 +1528,14 @@ namespace Gurux.DLMS
                     GXDLMSSNCommandHandler.HandleWriteRequest(Settings, this, data, replyData, null, cipheredCommand);
                     break;
                 case Command.GetRequest:
+                    //Console.WriteLine("HandleGetRequest");
                     if (data.Size != 0)
                     {
                         GXDLMSLNCommandHandler.HandleGetRequest(Settings, this, data, replyData, null, cipheredCommand);
                     }
                     break;
                 case Command.ReadRequest:
+                    //Console.WriteLine("HandleReadRequest");
                     GXDLMSSNCommandHandler.HandleReadRequest(Settings, this, data, replyData, null, cipheredCommand);
                     break;
                 case Command.MethodRequest:
@@ -1548,6 +1550,7 @@ namespace Gurux.DLMS
                     Settings.Connected = ConnectionState.Hdlc;
                     break;
                 case Command.Aarq:
+                    //Console.WriteLine("HandleAarqRequest");
                     HandleAarqRequest(data, sr.ConnectionInfo);
                     break;
                 case Command.ReleaseRequest:
@@ -2038,7 +2041,7 @@ namespace Gurux.DLMS
                 replyData.Set(GXCommon.LLCReplyBytes);
             }
             // Generate AARE packet.
-            GXAPDU.GenerateAARE(Settings, replyData, result, ret, Settings.Cipher, error, null);
+            GXAPDU.GenerateAARE(Settings, replyData, result, ret, null, error, null);
         }
 
         /// <summary>

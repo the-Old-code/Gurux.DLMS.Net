@@ -690,6 +690,8 @@ namespace Gurux.DLMS
                 return true;
             }
             System.Diagnostics.Debug.WriteLine("Invalid HDLC Frame: " + frame.ToString("X") + ". Expected: " + expected.ToString("X"));
+            string stack = Environment.StackTrace;
+            System.Diagnostics.Debug.WriteLine(stack);
             return false;
         }
 

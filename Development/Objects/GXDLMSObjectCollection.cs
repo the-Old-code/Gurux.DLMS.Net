@@ -51,7 +51,7 @@ namespace Gurux.DLMS.Objects
                             ICollection<GXDLMSObject>, IEnumerable<GXDLMSObject>
     {
         private List<GXDLMSObject> Objects;
-
+        private readonly object _dlmsObjectsLock = new object();
         #region Protected Properties
         /// <summary>
         /// Returns the list of items in the class.

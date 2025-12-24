@@ -51,10 +51,10 @@ namespace Gurux.DLMS.Reader
         /// <summary>
         /// Retry count.
         /// </summary>
-        private int _retryCount = 3;
+        private int _retryCount = 1;
         private IGXMedia _media;
         private TraceLevel _trace;
-        private GXDLMSSecureClient _client;
+        private GXDLMSClient _client;
         // Invocation counter (frame counter).
         private string _invocationCounter = null;
         private string _mediaSettings = null;
@@ -67,7 +67,7 @@ namespace Gurux.DLMS.Reader
         /// <param name="trace">Trace level.</param>
         /// <param name="invocationCounter">Logical name of invocation counter.</param>
         /// <param name="iec">Is optical head used.</param>
-        public GXDLMSReader(GXDLMSSecureClient client, IGXMedia media, TraceLevel trace, string invocationCounter)
+        public GXDLMSReader(GXDLMSClient client, IGXMedia media, TraceLevel trace, string invocationCounter)
         {
             _trace = trace;
             _media = media;
@@ -94,26 +94,26 @@ namespace Gurux.DLMS.Reader
                 if (outputFile != null)
                 {
                     //Update block cipher and authentication keys if used.
-                    if (_client.Ciphering.Security != Security.None)
-                    {
-                        foreach (var it in _client.Objects)
-                        {
-                            if (it is GXDLMSSecuritySetup ss)
-                            {
-                                ss.Guek = _client.Ciphering.BlockCipherKey;
-                                ss.Gbek = _client.Ciphering.BlockCipherKey;
-                                ss.Gak = _client.Ciphering.AuthenticationKey;
-                            }
-                        }
-                    }
-                    try
-                    {
-                        _client.Objects.Save(outputFile, new GXXmlWriterSettings() { UseMeterTime = true, IgnoreDefaultValues = false });
-                    }
-                    catch (Exception)
-                    {
-                        //It's OK if this fails.
-                    }
+                    //if (_client.Ciphering.Security != Security.None)
+                    //{
+                    //    foreach (var it in _client.Objects)
+                    //    {
+                    //        if (it is GXDLMSSecuritySetup ss)
+                    //        {
+                    //            ss.Guek = _client.Ciphering.BlockCipherKey;
+                    //            ss.Gbek = _client.Ciphering.BlockCipherKey;
+                    //            ss.Gak = _client.Ciphering.AuthenticationKey;
+                    //        }
+                    //    }
+                    //}
+                    //try
+                    //{
+                    //    _client.Objects.Save(outputFile, new GXXmlWriterSettings() { UseMeterTime = true, IgnoreDefaultValues = false });
+                    //}
+                    //catch (Exception)
+                    //{
+                    //    //It's OK if this fails.
+                    //}
                 }
             }
             finally
@@ -197,102 +197,102 @@ namespace Gurux.DLMS.Reader
         private void UpdateFrameCounter()
         {
             //Read frame counter if GeneralProtection is used.
-            if (!string.IsNullOrEmpty(_invocationCounter) && _client.Ciphering != null && _client.Ciphering.Security != (byte)Security.None)
-            {
-                InitializeOpticalHead();
-                byte[] data;
-                GXReplyData reply = new GXReplyData();
-                _client.ProposedConformance |= Conformance.GeneralProtection;
-                int add = _client.ClientAddress;
-                Authentication auth = _client.Authentication;
-                Security security = _client.Ciphering.Security;
-                byte[] challenge = _client.CtoSChallenge;
-                Signing signing = _client.Ciphering.Signing;
-                try
-                {
-                    _client.ClientAddress = 16;
-                    _client.Authentication = Authentication.None;
-                    _client.Ciphering.Security = (byte)Security.None;
-                    _client.Ciphering.Signing = Signing.None;
-                    data = _client.SNRMRequest();
-                    if (data != null)
-                    {
-                        if (_trace > TraceLevel.Info)
-                        {
-                            Console.WriteLine("Send SNRM request." + GXCommon.ToHex(data, true));
-                        }
-                        ReadDataBlock(data, reply);
-                        if (_trace == TraceLevel.Verbose)
-                        {
-                            Console.WriteLine("Parsing UA reply." + reply.ToString());
-                        }
-                        //Has server accepted client.
-                        _client.ParseUAResponse(reply.Data);
-                        if (_trace > TraceLevel.Info)
-                        {
-                            Console.WriteLine("Parsing UA reply succeeded.");
-                        }
-                    }
-                    //Generate AARQ request.
-                    //Split requests to multiple packets if needed.
-                    //If password is used all data might not fit to one packet.
-                    foreach (byte[] it in _client.AARQRequest())
-                    {
-                        if (_trace > TraceLevel.Info)
-                        {
-                            Console.WriteLine("Send AARQ request", GXCommon.ToHex(it, true));
-                        }
-                        reply.Clear();
-                        ReadDataBlock(it, reply);
-                    }
-                    if (_trace > TraceLevel.Info)
-                    {
-                        Console.WriteLine("Parsing AARE reply" + reply.ToString());
-                    }
-                    try
-                    {
-                        //Parse reply.
-                        _client.ParseAAREResponse(reply.Data);
-                        reply.Clear();
-                        GXDLMSData d = new GXDLMSData(_invocationCounter);
-                        Read(d, 2);
-                        _client.Ciphering.InvocationCounter = 1 + Convert.ToUInt32(d.Value);
-                        Console.WriteLine("Invocation counter: " + Convert.ToString(_client.Ciphering.InvocationCounter));
-                        reply.Clear();
-                        if (_client.InterfaceType == InterfaceType.HdlcWithModeE)
-                        {
-                            Disconnect();
-                            //Initialize IEC again for optical port connection.
-                            if (!string.IsNullOrEmpty(_mediaSettings))
-                            {
-                                _media.Close();
-                                _media.Settings = _mediaSettings;
-                                _media.Open();
-                            }
-                            //Some meters need a little break.
-                            Thread.Sleep(1000);
-                            InitializeOpticalHead();
-                        }
-                        else
-                        {
-                            Disconnect();
-                        }
-                    }
-                    catch (Exception Ex)
-                    {
-                        Disconnect();
-                        throw Ex;
-                    }
-                }
-                finally
-                {
-                    _client.ClientAddress = add;
-                    _client.Authentication = auth;
-                    _client.Ciphering.Security = security;
-                    _client.CtoSChallenge = challenge;
-                    _client.Ciphering.Signing = signing;
-                }
-            }
+            //if (!string.IsNullOrEmpty(_invocationCounter) && _client.Ciphering != null && _client.Ciphering.Security != (byte)Security.None)
+            //    {
+            //        InitializeOpticalHead();
+            //        byte[] data;
+            //        GXReplyData reply = new GXReplyData();
+            //        _client.ProposedConformance |= Conformance.GeneralProtection;
+            //        int add = _client.ClientAddress;
+            //        Authentication auth = _client.Authentication;
+            //        //Security security = _client.Ciphering.Security;
+            //        byte[] challenge = _client.CtoSChallenge;
+            //        //Signing signing = _client.Ciphering.Signing;
+            //        try
+            //        {
+            //            _client.ClientAddress = 16;
+            //            _client.Authentication = Authentication.None;
+            //            //_client.Ciphering.Security = (byte)Security.None;
+            //            //_client.Ciphering.Signing = Signing.None;
+            //            data = _client.SNRMRequest();
+            //            if (data != null)
+            //            {
+            //                if (_trace > TraceLevel.Info)
+            //                {
+            //                    Console.WriteLine("Send SNRM request." + GXCommon.ToHex(data, true));
+            //                }
+            //                ReadDataBlock(data, reply);
+            //                if (_trace == TraceLevel.Verbose)
+            //                {
+            //                    Console.WriteLine("Parsing UA reply." + reply.ToString());
+            //                }
+            //                //Has server accepted client.
+            //                _client.ParseUAResponse(reply.Data);
+            //                if (_trace > TraceLevel.Info)
+            //                {
+            //                    Console.WriteLine("Parsing UA reply succeeded.");
+            //                }
+            //            }
+            //            //Generate AARQ request.
+            //            //Split requests to multiple packets if needed.
+            //            //If password is used all data might not fit to one packet.
+            //            foreach (byte[] it in _client.AARQRequest())
+            //            {
+            //                if (_trace > TraceLevel.Info)
+            //                {
+            //                    Console.WriteLine("Send AARQ request", GXCommon.ToHex(it, true));
+            //                }
+            //                reply.Clear();
+            //                ReadDataBlock(it, reply);
+            //            }
+            //            if (_trace > TraceLevel.Info)
+            //            {
+            //                Console.WriteLine("Parsing AARE reply" + reply.ToString());
+            //            }
+            //            try
+            //            {
+            //                //Parse reply.
+            //                _client.ParseAAREResponse(reply.Data);
+            //                reply.Clear();
+            //                GXDLMSData d = new GXDLMSData(_invocationCounter);
+            //                Read(d, 2);
+            //                //_client.Ciphering.InvocationCounter = 1 + Convert.ToUInt32(d.Value);
+            //                //Console.WriteLine("Invocation counter: " + Convert.ToString(_client.Ciphering.InvocationCounter));
+            //                reply.Clear();
+            //                if (_client.InterfaceType == InterfaceType.HdlcWithModeE)
+            //                {
+            //                    Disconnect();
+            //                    //Initialize IEC again for optical port connection.
+            //                    if (!string.IsNullOrEmpty(_mediaSettings))
+            //                    {
+            //                        _media.Close();
+            //                        _media.Settings = _mediaSettings;
+            //                        _media.Open();
+            //                    }
+            //                    //Some meters need a little break.
+            //                    Thread.Sleep(1000);
+            //                    InitializeOpticalHead();
+            //                }
+            //                else
+            //                {
+            //                    Disconnect();
+            //                }
+            //            }
+            //            catch (Exception Ex)
+            //            {
+            //                Disconnect();
+            //                throw Ex;
+            //            }
+            //        }
+            //        finally
+            //        {
+            //            _client.ClientAddress = add;
+            //            _client.Authentication = auth;
+            //            //_client.Ciphering.Security = security;
+            //            _client.CtoSChallenge = challenge;
+            //            //_client.Ciphering.Signing = signing;
+            //        }
+            //    }
         }
 
         /// <summary>
@@ -478,17 +478,17 @@ namespace Gurux.DLMS.Reader
         public void InitializeConnection()
         {
             Console.WriteLine("Standard: " + _client.Standard);
-            if (_client.Ciphering.Security != (byte)Security.None)
-            {
-                Console.WriteLine("Security: " + _client.Ciphering.Security);
-                Console.WriteLine("System title: " + GXCommon.ToHex(_client.Ciphering.SystemTitle, true));
-                Console.WriteLine("Authentication key: " + GXCommon.ToHex(_client.Ciphering.AuthenticationKey, true));
-                Console.WriteLine("Block cipher key " + GXCommon.ToHex(_client.Ciphering.BlockCipherKey, true));
-                if (_client.Ciphering.DedicatedKey != null)
-                {
-                    Console.WriteLine("Dedicated key: " + GXCommon.ToHex(_client.Ciphering.DedicatedKey, true));
-                }
-            }
+            //if (_client.Ciphering.Security != (byte)Security.None)
+            //{
+            //    Console.WriteLine("Security: " + _client.Ciphering.Security);
+            //    Console.WriteLine("System title: " + GXCommon.ToHex(_client.Ciphering.SystemTitle, true));
+            //    Console.WriteLine("Authentication key: " + GXCommon.ToHex(_client.Ciphering.AuthenticationKey, true));
+            //    Console.WriteLine("Block cipher key " + GXCommon.ToHex(_client.Ciphering.BlockCipherKey, true));
+            //    if (_client.Ciphering.DedicatedKey != null)
+            //    {
+            //        Console.WriteLine("Dedicated key: " + GXCommon.ToHex(_client.Ciphering.DedicatedKey, true));
+            //    }
+            //}
             UpdateFrameCounter();
             GXReplyData reply = new GXReplyData();
             SNRMRequest();
@@ -1278,11 +1278,11 @@ namespace Gurux.DLMS.Reader
                     {
                         //Release is call only for secured connections.
                         //All meters are not supporting Release and it's causing problems.
-                        if (_client.InterfaceType == InterfaceType.WRAPPER ||
-                            (_client.InterfaceType == InterfaceType.HDLC && _client.Ciphering.Security != (byte)Security.None))
-                        {
-                            ReadDataBlock(_client.ReleaseRequest(), reply);
-                        }
+                        //if (_client.InterfaceType == InterfaceType.WRAPPER ||
+                        //    (_client.InterfaceType == InterfaceType.HDLC && _client.Ciphering.Security != (byte)Security.None))
+                        //{
+                        //    ReadDataBlock(_client.ReleaseRequest(), reply);
+                        //}
                     }
                     catch (Exception ex)
                     {
