@@ -1072,6 +1072,8 @@ namespace Gurux.DLMS
         /// <param name="connected"></param>
         public void Reset(bool connected)
         {
+            Thread.Sleep(100);
+            //Console.WriteLine($"Reset(bool {connected})");
             Settings.protocolVersion = null;
             // Reset Ephemeral keys.
             Settings.EphemeralBlockCipherKey = null;
@@ -1429,6 +1431,8 @@ namespace Gurux.DLMS
                     if (InterfaceType == InterfaceType.HDLC || InterfaceType == InterfaceType.HdlcWithModeE)
                     {
                         sr.Reply = GXDLMS.GetHdlcFrame(Settings, (byte)Command.UnacceptableFrame, replyData);
+                        string stack = Environment.StackTrace;
+                        Console.WriteLine(stack);
                     }
                 }
                 info.Clear();
@@ -1531,6 +1535,8 @@ namespace Gurux.DLMS
                     //Console.WriteLine("HandleGetRequest");
                     if (data.Size != 0)
                     {
+                        Settings.ServerAddress = 32767;
+                        Settings.ClientAddress = 48;
                         GXDLMSLNCommandHandler.HandleGetRequest(Settings, this, data, replyData, null, cipheredCommand);
                     }
                     break;
@@ -1891,6 +1897,10 @@ namespace Gurux.DLMS
                     {
                         replyData.Set(GXCommon.LLCReplyBytes);
                     }
+                    else 
+                    {
+                        Console.WriteLine($"GXDLMS.UseHdlc(Settings.InterfaceType) is false");
+                    }
                     replyData.SetUInt8(Command.ExceptionResponse);
                     replyData.SetUInt8(ExceptionStateError.ServiceNotAllowed);
                     replyData.SetUInt8(e);
@@ -2039,6 +2049,12 @@ namespace Gurux.DLMS
             if (GXDLMS.UseHdlc(Settings.InterfaceType))
             {
                 replyData.Set(GXCommon.LLCReplyBytes);
+            }
+            else
+            {
+                string stack = Environment.StackTrace;
+                Console.WriteLine($"GXDLMS.UseHdlc(Settings.InterfaceType) is false");
+                Console.WriteLine(stack);
             }
             // Generate AARE packet.
             GXAPDU.GenerateAARE(Settings, replyData, result, ret, null, error, null);

@@ -1734,6 +1734,13 @@ namespace Gurux.DLMS.Internal
                                           AssociationResult result, object diagnostic, GXICipher cipher,
                                           GXByteBuffer errorData, GXByteBuffer encryptedData)
         {
+            if (settings.ServerAddress == 0) 
+            {
+                Console.WriteLine("settings.ServerAddress == 0");
+                string stack = Environment.StackTrace;
+                Console.WriteLine(stack);
+            }
+            
             int offset = data.Size;
             // Set AARE tag.
             data.SetUInt8(((byte)BerType.Application | (byte)BerType.Constructed | (byte)PduType.ApplicationContextName)); //0x61
@@ -1844,8 +1851,8 @@ namespace Gurux.DLMS.Internal
                     }
                     else
                     {
-                        settings.ServerAddress = 32767;
-                        settings.ClientAddress = 48;
+                        //settings.ServerAddress = 32767;
+                        //settings.ClientAddress = 48;
                         tmp = GetUserInformation(settings, cipher);
                     }
                 }

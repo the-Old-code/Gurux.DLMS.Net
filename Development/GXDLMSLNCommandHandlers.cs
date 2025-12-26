@@ -944,6 +944,8 @@ namespace Gurux.DLMS
         /// <param name="data">Received data.</param>
         private static void GetRequestNormal(GXDLMSSettings settings, byte invokeID, GXDLMSServer server, GXByteBuffer data, GXByteBuffer replyData, GXDLMSTranslatorStructure xml, Command cipheredCommand)
         {
+            settings.ServerAddress = 32767;//костыль
+            settings.ClientAddress = 48;//костыль
             //Console.WriteLine("GetRequestNormal");
             ValueEventArgs e = null;
             GXByteBuffer bb = new GXByteBuffer();
