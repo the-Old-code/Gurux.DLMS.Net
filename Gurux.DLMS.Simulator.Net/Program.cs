@@ -414,12 +414,12 @@ namespace Gurux.DLMS.Simulator.Net
 
                 var results = await testClientsManager.BeginTesting(settings);
 
-                Console.WriteLine("======================================================================");
+                Console.WriteLine("========================ВЫВОД РЕЗУЛЬТАТОВ=============================");
                 foreach (var result in results)
                 {
                     Console.WriteLine(result);
                 }
-                Console.WriteLine("======================================================================");
+                Console.WriteLine("========================ВЫВОД РЕЗУЛЬТАТОВ=============================");
 
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)

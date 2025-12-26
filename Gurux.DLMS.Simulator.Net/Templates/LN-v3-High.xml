@@ -26,12 +26,8 @@
 	<GXDLMSClock>
 		<LN>0.0.1.0.1.255</LN>
 		<Description>Ch. 0 Clock object #2</Description>
-
-		<!-- можете оставить те же права, что и у #1 -->
 		<Access>133133331</Access>
 		<MethodAccess>001001</MethodAccess>
-
-		<!-- лучше придерживаться формата как в шаблонах Gurux -->
 		<Time>12/17/2025 13:17:30</Time>
 		<TimeZone>-300</TimeZone>
 		<Status>0</Status>

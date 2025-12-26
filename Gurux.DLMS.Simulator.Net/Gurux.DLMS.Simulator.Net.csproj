@@ -22,4 +22,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Development\Gurux.DLMS.Net.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Templates\LN-v3-High.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

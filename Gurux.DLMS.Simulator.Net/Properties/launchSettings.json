@@ -2,8 +2,7 @@
   "profiles": {
     "Gurux.DLMS.Simulator.Net": {
       "commandName": "Project",
-      "commandLineArgs": "-h 192.168.0.105 -p 10244 -a None -C None -i HDLC -s 16383 -l 1 -c 48 -N 50 -x Templates/LN-v3-High.xml",
-      "commandLineArgs123": "-h 192.168.0.105 -p 10244 -a High -C Authentication -i HDLC -P 1234567898765432 -s 538 -l 1 -c 48 -N 1 -x Templates/LN-v3-High.xml -t Verbose"
+      "commandLineArgs": "-h 192.168.0.105 -p 10244 -a None -C None -i HDLC -s 16383 -l 1 -c 48 -N 100 -x Templates/LN-v3-High.xml -t Off"
     }
   }
 }

@@ -47,7 +47,7 @@ namespace Gurux.DLMS.Reader
         /// <summary>
         /// Wait time in ms.
         /// </summary>
-        private int _waitTime = 5000;
+        private int _waitTime = 30000;//перенести в launchSettings.json
         /// <summary>
         /// Retry count.
         /// </summary>
@@ -477,7 +477,7 @@ namespace Gurux.DLMS.Reader
         /// </summary>
         public void InitializeConnection()
         {
-            Console.WriteLine("Standard: " + _client.Standard);
+            //Console.WriteLine("Standard: " + _client.Standard);
             //if (_client.Ciphering.Security != (byte)Security.None)
             //{
             //    Console.WriteLine("Security: " + _client.Ciphering.Security);
