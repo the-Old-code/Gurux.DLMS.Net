@@ -37,6 +37,7 @@ using Gurux.DLMS.Enums;
 using Gurux.DLMS.Objects;
 using Gurux.Net;
 using Gurux.Serial;
+using Serilog;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -412,6 +413,14 @@ namespace Gurux.DLMS.Simulator.Net
                 await System.Threading.Tasks.Task.Delay(10000);
                 TestClientsManager testClientsManager = new TestClientsManager();
 
+                Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Async(a => a.File(
+                    "app.log",
+                    buffered: true,
+                    rollingInterval: RollingInterval.Day))
+                .CreateLogger();
+
                 var results = await testClientsManager.BeginTesting(settings);
 
                 Console.WriteLine("========================ВЫВОД РЕЗУЛЬТАТОВ=============================");
@@ -420,7 +429,7 @@ namespace Gurux.DLMS.Simulator.Net
                     Console.WriteLine(result);
                 }
                 Console.WriteLine("========================ВЫВОД РЕЗУЛЬТАТОВ=============================");
-
+                Log.CloseAndFlush();
                 ConsoleKey k;
                 while ((k = Console.ReadKey().Key) != ConsoleKey.Escape)
                 {
@@ -437,6 +446,7 @@ namespace Gurux.DLMS.Simulator.Net
                     server.Close();
                 }
                 Console.WriteLine("Servers closed.");
+                
             }
         }
 

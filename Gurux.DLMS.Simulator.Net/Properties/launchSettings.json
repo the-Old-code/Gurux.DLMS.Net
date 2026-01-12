@@ -2,7 +2,7 @@
   "profiles": {
     "Gurux.DLMS.Simulator.Net": {
       "commandName": "Project",
-      "commandLineArgs": "-h TCP_ROUTER_host -p 10244 -a None -C None -i HDLC -s 16383 -l 1 -c 48 -N 100 -x Templates/LN-v3-High.xml -t Off"
+      "commandLineArgs": "-h 192.168.0.105 -p 10244 -a None -C None -i HDLC -s 16383 -l 1 -c 48 -N 100 -x Templates/LN-v3-High.xml -t Off"
     }
   }
 }

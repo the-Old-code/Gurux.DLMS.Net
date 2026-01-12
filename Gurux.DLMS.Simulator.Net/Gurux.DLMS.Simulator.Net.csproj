@@ -16,8 +16,12 @@
     <None Remove="*.bat" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Gurux.Net" Version="8.4.2503.1001" />
     <PackageReference Include="Gurux.Serial" Version="8.4.2503.603" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Include="Serilog.Sinks.AsyncFile" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.Buffer" Version="1.2.2" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Development\Gurux.DLMS.Net.csproj" />
@@ -27,4 +31,19 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+	<Target Name="DeleteAppLogs_BeforeDebugRun"
+			BeforeTargets="Build"
+			Condition="'$(Configuration)' == 'Debug'">
+
+		<ItemGroup>
+			<AppLogFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\**\app????????.log" />
+		</ItemGroup>
+
+		<Message Text="Debug pre-run cleanup: deleting @(AppLogFiles)"
+				 Importance="High"
+				 Condition="@(AppLogFiles) != ''" />
+
+		<Delete Files="@(AppLogFiles)" ContinueOnError="true" />
+	</Target>
 </Project>
